@@ -2,13 +2,11 @@ import logging
 import uuid
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from .. import models, schemas
 from ..cloud_storage import upload_annotated_image
 from ..config import settings
-from ..database import get_db
 from ..inference import ModelNotLoadedError, run_inference
 
 logger = logging.getLogger(__name__)
@@ -39,7 +37,7 @@ def is_valid_image(content_type: str | None, filename: str | None, contents: byt
 
 
 @router.post("/detect", response_model=schemas.DetectionOut)
-async def detect_pothole(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def detect_pothole(file: UploadFile = File(...)):
     contents = await file.read()
     if len(contents) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
@@ -91,16 +89,14 @@ async def detect_pothole(file: UploadFile = File(...), db: Session = Depends(get
         num_potholes=len(boxes),
         detections=boxes,
     )
-    db.add(record)
-    db.commit()
-    db.refresh(record)
+    models.save_detection(record)
 
     return _to_detection_out(record)
 
 
 @router.get("/detections/{detection_id}", response_model=schemas.DetectionOut)
-def get_detection(detection_id: str, db: Session = Depends(get_db)):
-    record = db.get(models.Detection, detection_id)
+def get_detection(detection_id: str):
+    record = models.get_detection_by_id(detection_id)
     if record is None:
         raise HTTPException(status_code=404, detail="Detection not found.")
     return _to_detection_out(record)

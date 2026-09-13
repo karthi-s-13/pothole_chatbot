@@ -1,11 +1,8 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException
 
 from .. import conversations, models, schemas
-from ..database import get_db
 from ..mongo_client import MongoNotConfiguredError
 from .detect import resolve_annotated_image_url
 
@@ -13,14 +10,10 @@ router = APIRouter(prefix="/api", tags=["history"])
 
 
 @router.get("/history", response_model=list[schemas.HistoryItemOut])
-def get_history(limit: int = 50, db: Session = Depends(get_db)):
+def get_history(limit: int = 50):
     limit = max(1, min(limit, 200))
 
-    records = list(
-        db.execute(
-            select(models.Detection).order_by(models.Detection.created_at.desc()).limit(limit)
-        ).scalars()
-    )
+    records = models.get_recent_detections(limit)
 
     try:
         summaries = conversations.get_summaries([r.id for r in records])
@@ -48,8 +41,8 @@ def get_history(limit: int = 50, db: Session = Depends(get_db)):
 
 
 @router.delete("/history/{detection_id}", status_code=204)
-def delete_history_item(detection_id: str, db: Session = Depends(get_db)):
-    record = db.get(models.Detection, detection_id)
+def delete_history_item(detection_id: str):
+    record = models.get_detection_by_id(detection_id)
     if record is None:
         raise HTTPException(status_code=404, detail="Detection not found.")
 
@@ -59,8 +52,7 @@ def delete_history_item(detection_id: str, db: Session = Depends(get_db)):
     if not record.annotated_image_path.startswith("http"):
         Path(record.annotated_image_path).unlink(missing_ok=True)
 
-    db.delete(record)
-    db.commit()
+    models.delete_detection(detection_id)
 
     try:
         conversations.delete_conversation(detection_id)

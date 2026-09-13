@@ -1,21 +1,52 @@
+from datetime import UTC, datetime
+from typing import Any
 import uuid
-from datetime import datetime
+from pydantic import BaseModel, Field
 
-from sqlalchemy import DateTime, Integer, JSON, String
-from sqlalchemy.orm import Mapped, mapped_column
-
-from .database import Base
+from .mongo_client import get_detections_collection
 
 
-class Detection(Base):
-    __tablename__ = "detections"
+class Detection(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    original_filename: str
+    image_path: str
+    annotated_image_path: str
+    num_potholes: int = 0
+    detections: list[dict[str, Any]] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    original_filename: Mapped[str] = mapped_column(String(255))
-    image_path: Mapped[str] = mapped_column(String(500))
-    annotated_image_path: Mapped[str] = mapped_column(String(500))
-    num_potholes: Mapped[int] = mapped_column(Integer, default=0)
-    detections: Mapped[list] = mapped_column(JSON, default=list)  # [{class_name, confidence, bbox:[x1,y1,x2,y2], ...}]
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    @classmethod
+    def from_mongo(cls, doc: dict) -> "Detection":
+        doc_copy = dict(doc)
+        if "_id" in doc_copy:
+            doc_copy["id"] = str(doc_copy.pop("_id"))
+        return cls(**doc_copy)
 
-    # Chat messages for this detection live in MongoDB (see conversations.py), not here.
+    def to_mongo(self) -> dict:
+        data = self.model_dump()
+        data["_id"] = data.pop("id")
+        return data
+
+
+def save_detection(detection: Detection) -> Detection:
+    collection = get_detections_collection()
+    collection.insert_one(detection.to_mongo())
+    return detection
+
+
+def get_detection_by_id(detection_id: str) -> Detection | None:
+    collection = get_detections_collection()
+    doc = collection.find_one({"_id": detection_id})
+    return Detection.from_mongo(doc) if doc else None
+
+
+def get_recent_detections(limit: int = 50) -> list[Detection]:
+    collection = get_detections_collection()
+    cursor = collection.find().sort("created_at", -1).limit(limit)
+    return [Detection.from_mongo(doc) for doc in cursor]
+
+
+def delete_detection(detection_id: str) -> bool:
+    collection = get_detections_collection()
+    res = collection.delete_one({"_id": detection_id})
+    return res.deleted_count > 0

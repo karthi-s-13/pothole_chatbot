@@ -9,10 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent  # backend/
 
 
 class Settings(BaseSettings):
-    database_url: str = "postgresql+psycopg://pothole_app:pothole_app@localhost:5432/pothole_db"
-
-    # Chat conversations live in MongoDB (document-shaped: one doc per detection_id, messages
-    # embedded in an array); detections stay in Postgres.
+    # MongoDB Atlas connection string -- both detections and chat conversations live in MongoDB.
     mongodb_uri: str = ""
     mongodb_db_name: str = "pothole_detection"
 
@@ -33,17 +30,6 @@ class Settings(BaseSettings):
     confidence_threshold: float = 0.66
 
     cors_origins: Union[list[str], str] = ["http://localhost:5173"]
-
-    @field_validator("database_url", mode="before")
-    @classmethod
-    def assemble_database_url(cls, v: str) -> str:
-        if isinstance(v, str) and v:
-            # Normalize postgres:// and postgresql:// to postgresql+psycopg:// for SQLAlchemy
-            if v.startswith("postgres://"):
-                return v.replace("postgres://", "postgresql+psycopg://", 1)
-            if v.startswith("postgresql://") and not v.startswith("postgresql+"):
-                return v.replace("postgresql://", "postgresql+psycopg://", 1)
-        return v
 
     @field_validator("cors_origins", mode="before")
     @classmethod

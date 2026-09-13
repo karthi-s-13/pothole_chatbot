@@ -39,3 +39,8 @@ def get_mongo_client() -> MongoClient:
 def get_conversations_collection() -> Collection:
     db = get_mongo_client()[settings.mongodb_db_name]
     return db["conversations"]
+
+
+def get_detections_collection() -> Collection:
+    db = get_mongo_client()[settings.mongodb_db_name]
+    return db["detections"]

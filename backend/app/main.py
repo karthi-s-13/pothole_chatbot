@@ -7,7 +7,6 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import BASE_DIR, settings
-from .database import Base, engine
 from .inference import ModelNotLoadedError, load_model
 from .mongo_client import MongoNotConfiguredError, get_mongo_client
 from .routers import chat, detect, history
@@ -18,14 +17,6 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        Base.metadata.create_all(bind=engine)
-        logger.info("PostgreSQL database tables verified/created successfully.")
-    except Exception as e:
-        logger.error("Could not connect to PostgreSQL at startup: %s", e)
-        logger.warning(
-            "Check that DATABASE_URL is set in your environment variables and the database is accessible."
-        )
     try:
         load_model()
         logger.info("RT-DETR model loaded successfully.")

@@ -1,24 +1,5 @@
 services:
-  # 1. PostgreSQL - Stores detections and damage metadata
-  postgres:
-    image: postgres:16-alpine
-    container_name: pothole_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: pothole_app
-      POSTGRES_PASSWORD: pothole_password
-      POSTGRES_DB: pothole_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pothole_app -d pothole_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # 2. MongoDB - Stores chat conversations and history
+  # 1. MongoDB - Stores both detections and chat conversations
   mongodb:
     image: mongo:7-jammy
     container_name: pothole_mongodb
@@ -33,7 +14,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # 3. Full-Stack App - Unified React Frontend + FastAPI Backend + RT-DETR Model
+  # 2. Full-Stack App - Unified React Frontend + FastAPI Backend + RT-DETR Model
   app:
     build:
       context: .
@@ -41,21 +22,16 @@ services:
     container_name: pothole_app
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
       mongodb:
         condition: service_healthy
     ports:
       - "8000:8000"
     environment:
-      # Database
-      DATABASE_URL: postgresql+psycopg://pothole_app:pothole_password@postgres:5432/pothole_db
-      
-      # MongoDB
+      # MongoDB (Only database needed)
       MONGODB_URI: mongodb://mongodb:27017
       MONGODB_DB_NAME: pothole_detection
 
-      # Groq LLM (Set to openai/gpt-oss-120b)
+      # Groq LLM
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_MODEL: openai/gpt-oss-120b
 
@@ -70,6 +46,5 @@ services:
       - app_uploads:/app/backend/static/uploads
 
 volumes:
-  postgres_data:
   mongodb_data:
   app_uploads:

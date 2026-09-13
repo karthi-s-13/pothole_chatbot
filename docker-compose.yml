@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pothole_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pothole_app
+      POSTGRES_PASSWORD: pothole_password
+      POSTGRES_DB: pothole_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pothole_backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://pothole_app:pothole_password@postgres:5432/pothole_db
+      MONGODB_URI: ${MONGODB_URI:-}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-pothole_detection}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      CORS_ORIGINS: '["*"]'
+    volumes:
+      - ./backend/static:/app/backend/static
+
+volumes:
+  postgres_data:

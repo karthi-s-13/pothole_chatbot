@@ -55,5 +55,8 @@ Thumbs.db
 # Large Models and Weights
 *.pt
 *.onnx
+!model/pothole_rtdetr_best.pt
 model/runs/
+backend/runs/
+runs/
 model/pothole_dataset/

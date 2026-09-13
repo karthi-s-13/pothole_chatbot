@@ -1,0 +1,17 @@
+.git
+.gitignore
+.claude
+frontend
+.venv
+backend/.venv
+model/pothole_dataset
+model/_flat_voc
+model/runs
+model/inference_results
+*.ipynb
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db

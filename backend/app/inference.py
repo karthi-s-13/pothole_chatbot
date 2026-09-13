@@ -21,10 +21,20 @@ def load_model():
         return _model
 
     if not settings.weights_path.exists():
-        raise ModelNotLoadedError(
-            f"Model weights not found at {settings.weights_path}. "
-            "Copy pothole_rtdetr_best.pt there or set WEIGHTS_PATH in .env."
-        )
+        if settings.weights_url:
+            logger.info("Weights not found locally. Downloading from %s...", settings.weights_url)
+            import urllib.request
+            settings.weights_path.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                urllib.request.urlretrieve(settings.weights_url, str(settings.weights_path))
+                logger.info("Weights downloaded successfully to %s", settings.weights_path)
+            except Exception as dl_err:
+                raise ModelNotLoadedError(f"Failed to download weights from {settings.weights_url}: {dl_err}") from dl_err
+        else:
+            raise ModelNotLoadedError(
+                f"Model weights not found at {settings.weights_path}. "
+                "Copy pothole_rtdetr_best.pt there or set WEIGHTS_PATH / WEIGHTS_URL in .env."
+            )
 
     from ultralytics import RTDETR  # imported lazily: heavy import, and lets the API boot even if torch is broken
 

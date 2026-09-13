@@ -42,10 +42,18 @@ def load_model():
                 "Ensure best.pt or pothole_rtdetr_best.pt exists or set WEIGHTS_PATH / WEIGHTS_URL in .env."
             )
 
+    import gc
     import os
     import tempfile
+    import torch
 
     os.environ.setdefault("YOLO_CONFIG_DIR", os.path.join(tempfile.gettempdir(), "Ultralytics"))
+    torch.set_grad_enabled(False)
+    try:
+        torch.set_num_threads(2)
+    except Exception:
+        pass
+
     from ultralytics import RTDETR  # imported lazily: heavy import, and lets the API boot even if torch is broken
 
     logger.info("Loading RT-DETR weights from %s", target_path)
@@ -54,6 +62,7 @@ def load_model():
     except Exception as e:  # corrupt weights, incompatible torch version, etc.
         raise ModelNotLoadedError(f"Failed to load model weights: {e}") from e
 
+    gc.collect()
     return _model
 
 
@@ -112,7 +121,17 @@ def run_inference(image_path: Path, annotated_out_path: Path) -> list[dict]:
 
     img_h, img_w = image.shape[:2]
 
-    results = model.predict(source=image, conf=settings.confidence_threshold, verbose=False)
+    import gc
+    import torch
+
+    with torch.no_grad():
+        results = model.predict(
+            source=image,
+            conf=settings.confidence_threshold,
+            device="cpu",
+            verbose=False,
+            imgsz=640,
+        )
     result = results[0]
 
     boxes: list[dict] = []
@@ -134,5 +153,9 @@ def run_inference(image_path: Path, annotated_out_path: Path) -> list[dict]:
     annotated = result.plot()  # BGR numpy array with boxes drawn
     annotated_out_path.parent.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(annotated_out_path), annotated)
+
+    del results
+    del result
+    gc.collect()
 
     return boxes

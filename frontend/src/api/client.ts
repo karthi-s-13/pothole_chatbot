@@ -28,7 +28,7 @@ const API_BASE_URL = resolveDefaultApiBase();
 
 const client = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 60_000, // model inference can take a few seconds on CPU
+  timeout: 120_000, // model inference can take a few seconds on CPU
 });
 
 /** Turns any error from an API call into a single human-readable message. */

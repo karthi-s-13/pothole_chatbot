@@ -53,11 +53,9 @@ def upload_annotated_image(local_path: Path, public_id: str) -> str | None:
             public_id=public_id,
             folder="pothole-detection",
             overwrite=True,
+            timeout=4,
         )
         return result["secure_url"]
-    except cloudinary.exceptions.Error:
-        logger.exception("Cloudinary upload failed, falling back to local storage")
-        return None
-    except Exception:
-        logger.exception("Unexpected error uploading to Cloudinary, falling back to local storage")
+    except Exception as e:
+        logger.warning("Cloudinary upload failed or timed out (%s). Falling back to local storage.", e)
         return None

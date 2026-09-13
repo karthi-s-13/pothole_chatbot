@@ -1,7 +1,8 @@
 import axios, { AxiosError } from "axios";
 import type { ApiErrorPayload, ChatMessage, DetectionResult, HistoryItem } from "../types";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+const API_BASE_URL = rawBaseUrl ? rawBaseUrl.replace(/\/+$/, "") : "http://localhost:8000";
 
 const client = axios.create({
   baseURL: API_BASE_URL,
@@ -68,7 +69,8 @@ export async function deleteHistoryItem(detectionId: string): Promise<void> {
 
 export function resolveImageUrl(path: string): string {
   if (path.startsWith("http")) return path;
-  return `${API_BASE_URL}${path}`;
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE_URL}${cleanPath}`;
 }
 
 export async function checkApiHealth(): Promise<boolean> {

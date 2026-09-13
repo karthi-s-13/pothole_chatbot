@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { AlertCircle, ImagePlus, Loader2, Send, Sparkles, X } from "lucide-react";
 import { extractErrorMessage, sendChatMessage, uploadImageForDetection } from "../api/client";
-import { fetchAsFile } from "../utils";
 import type { ChatMessage, ChatRole, DetectionResult } from "../types";
 import ChatBubble from "./ChatBubble";
 import ImageUploader from "./ImageUploader";
-import SampleImages from "./SampleImages";
 
 interface LocalMessage {
   role: ChatRole;
@@ -158,16 +156,6 @@ export default function ChatPanel({ initialSession = null }: Props) {
     setPendingAttachment(normalized);
   }
 
-  async function handleSamplePick(url: string, filename: string) {
-    setError(null);
-    try {
-      const file = await fetchAsFile(url, filename);
-      setPendingAttachment(file);
-    } catch {
-      setError("Could not load that sample image. Try again.");
-    }
-  }
-
   const showEmptyState = messages.length === 0;
 
   return (
@@ -205,7 +193,6 @@ export default function ChatPanel({ initialSession = null }: Props) {
             </div>
 
             <ImageUploader onAttach={handleFilePicked} disabled={isSending} />
-            <SampleImages onPick={handleSamplePick} disabled={isSending} />
           </div>
         ) : (
           messages.map((m, i) => (

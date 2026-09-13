@@ -15,13 +15,23 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 logger = logging.getLogger(__name__)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+import asyncio
+
+def _warmup_model_background():
     try:
         load_model()
-        logger.info("RT-DETR model loaded successfully.")
+        logger.info("RT-DETR model loaded and warmed up successfully.")
     except ModelNotLoadedError as e:
         logger.warning("Model not loaded at startup (uploads will fail until fixed): %s", e)
+    except Exception as e:
+        logger.warning("Unexpected error during model warmup: %s", e)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Asynchronously warmup model so the server binds to $PORT immediately (prevents Render 502 timeouts)
+    asyncio.create_task(asyncio.to_thread(_warmup_model_background))
+
     try:
         get_mongo_client()
         logger.info("MongoDB connected successfully.")

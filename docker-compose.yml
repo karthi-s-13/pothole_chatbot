@@ -1,5 +1,5 @@
 services:
-  # 1. MongoDB - Stores both detections and chat conversations
+  # 1. MongoDB - Stores detections and chat history
   mongodb:
     image: mongo:7-jammy
     container_name: pothole_mongodb
@@ -14,12 +14,12 @@ services:
       timeout: 5s
       retries: 5
 
-  # 2. Full-Stack App - Unified React Frontend + FastAPI Backend + RT-DETR Model
-  app:
+  # 2. Backend - FastAPI + RT-DETR Model (Render Deployment Target)
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: pothole_app
+    container_name: pothole_backend
     restart: unless-stopped
     depends_on:
       mongodb:
@@ -27,23 +27,31 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # MongoDB (Only database needed)
+      PORT: 8000
       MONGODB_URI: mongodb://mongodb:27017
       MONGODB_DB_NAME: pothole_detection
-
-      # Groq LLM
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_MODEL: openai/gpt-oss-120b
-
-      # Cloudinary (Optional - for cloud image storage)
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
-
-      # CORS
       CORS_ORIGINS: '["*"]'
     volumes:
       - app_uploads:/app/backend/static/uploads
+
+  # 3. Frontend - React 19 + Vite + Nginx (Vercel Deployment Target)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    container_name: pothole_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   mongodb_data:

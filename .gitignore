@@ -56,6 +56,8 @@ Thumbs.db
 *.pt
 *.onnx
 !model/pothole_rtdetr_best.pt
+!model/best.pt
+!model/last.pt
 model/runs/
 backend/runs/
 runs/

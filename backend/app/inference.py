@@ -20,27 +20,33 @@ def load_model():
     if _model is not None:
         return _model
 
-    if not settings.weights_path.exists():
+    target_path = settings.weights_path
+    if not target_path.exists():
+        fallback_best = settings.weights_path.parent / "best.pt"
+        if fallback_best.exists():
+            target_path = fallback_best
+
+    if not target_path.exists():
         if settings.weights_url:
             logger.info("Weights not found locally. Downloading from %s...", settings.weights_url)
             import urllib.request
-            settings.weights_path.parent.mkdir(parents=True, exist_ok=True)
+            target_path.parent.mkdir(parents=True, exist_ok=True)
             try:
-                urllib.request.urlretrieve(settings.weights_url, str(settings.weights_path))
-                logger.info("Weights downloaded successfully to %s", settings.weights_path)
+                urllib.request.urlretrieve(settings.weights_url, str(target_path))
+                logger.info("Weights downloaded successfully to %s", target_path)
             except Exception as dl_err:
                 raise ModelNotLoadedError(f"Failed to download weights from {settings.weights_url}: {dl_err}") from dl_err
         else:
             raise ModelNotLoadedError(
-                f"Model weights not found at {settings.weights_path}. "
-                "Copy pothole_rtdetr_best.pt there or set WEIGHTS_PATH / WEIGHTS_URL in .env."
+                f"Model weights not found at {settings.weights_path} or {target_path}. "
+                "Ensure best.pt or pothole_rtdetr_best.pt exists or set WEIGHTS_PATH / WEIGHTS_URL in .env."
             )
 
     from ultralytics import RTDETR  # imported lazily: heavy import, and lets the API boot even if torch is broken
 
-    logger.info("Loading RT-DETR weights from %s", settings.weights_path)
+    logger.info("Loading RT-DETR weights from %s", target_path)
     try:
-        _model = RTDETR(str(settings.weights_path))
+        _model = RTDETR(str(target_path))
     except Exception as e:  # corrupt weights, incompatible torch version, etc.
         raise ModelNotLoadedError(f"Failed to load model weights: {e}") from e
 

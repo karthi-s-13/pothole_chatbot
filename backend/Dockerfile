@@ -1,5 +1,5 @@
 # ===================================================
-# Production Backend (FastAPI + RT-DETR Model + MongoDB)
+# Production Backend (FastAPI + RT-DETR-L Model + MongoDB)
 # Built with context: . (repo root)
 # ===================================================
 FROM python:3.11-slim

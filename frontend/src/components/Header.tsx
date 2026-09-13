@@ -187,7 +187,7 @@ function BackendHealthPill() {
             {/* Model Health */}
             <div className="flex items-center justify-between px-1">
               <span className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
-                <Cpu className="h-3.5 w-3.5 text-stone-400" /> RT-DETR Model
+                <Cpu className="h-3.5 w-3.5 text-stone-400" /> RT-DETR-L Model
               </span>
               <span
                 className={`font-semibold ${

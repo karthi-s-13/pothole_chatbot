@@ -1,5 +1,5 @@
 # ===================================================
-# Production Backend (FastAPI + RT-DETR Model + MongoDB)
+# Production Backend (FastAPI + RT-DETR-L Model + MongoDB)
 # Optimized for Render and Cloud Deployments
 # ===================================================
 FROM python:3.11-slim

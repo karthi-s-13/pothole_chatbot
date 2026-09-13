@@ -83,6 +83,7 @@ def health():
         "backend": "healthy",
         "database": db_status,
         "model": model_status,
+        "vision_model": "RT-DETR-L",
         "llm_model": settings.groq_model,
     }
 

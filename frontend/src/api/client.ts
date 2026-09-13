@@ -100,6 +100,7 @@ export interface BackendHealthInfo {
   backend?: string;
   database?: string;
   model?: string;
+  vision_model?: string;
   llm_model?: string;
   latencyMs?: number;
 }

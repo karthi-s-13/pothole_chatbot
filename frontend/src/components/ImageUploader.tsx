@@ -62,17 +62,17 @@ export default function ImageUploader({ onAttach, disabled }: Props) {
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
         onClick={() => !disabled && inputRef.current?.click()}
-        className={`flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors
+        className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 sm:p-5 text-center transition-colors
           ${isDragging ? "border-orange-500 bg-orange-50 dark:bg-orange-950/30" : "border-orange-300 dark:border-orange-900/50"}
           ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:border-orange-400"}`}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-600">
-          <UploadCloud className="h-7 w-7 text-white" />
+        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-red-600">
+          <UploadCloud className="h-5 w-5 text-white" />
         </div>
         <p className="text-sm font-medium text-stone-700 dark:text-stone-300">
           Click or drag a road image here
         </p>
-        <p className="text-xs text-stone-400">JPEG, PNG, or WEBP · up to {MAX_SIZE_MB}MB</p>
+        <p className="text-[11px] text-stone-400">JPEG, PNG, or WEBP · up to {MAX_SIZE_MB}MB</p>
 
         <button
           type="button"
@@ -81,9 +81,9 @@ export default function ImageUploader({ onAttach, disabled }: Props) {
             e.stopPropagation();
             inputRef.current?.click();
           }}
-          className="mt-1 flex items-center gap-2 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-orange-500/30 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-0.5 flex items-center gap-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm shadow-orange-500/30 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <ImageUp className="h-4 w-4" />
+          <ImageUp className="h-3.5 w-3.5" />
           Choose Image
         </button>
 

@@ -168,23 +168,23 @@ export default function ChatPanel({ initialSession = null }: Props) {
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+      <div ref={scrollRef} className="flex-1 min-h-0 space-y-3 overflow-y-auto px-4 py-3">
         {showEmptyState ? (
-          <div className="mx-auto flex max-w-xl flex-col items-center gap-6 pt-2 text-center">
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-950/40">
-                <Sparkles className="h-6 w-6 text-orange-500" />
+          <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center gap-3 sm:gap-4 py-1 text-center">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-950/40">
+                <Sparkles className="h-5 w-5 text-orange-500" />
               </div>
-              <p className="text-sm text-stone-500 dark:text-stone-400">
+              <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400">
                 Attach a road image below to start a conversation about the results.
               </p>
-              <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2">
+              <div className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-2">
                 {SUGGESTED_QUESTIONS.map((q) => (
                   <button
                     key={q}
                     type="button"
                     onClick={() => setInput(q)}
-                    className="rounded-lg border border-stone-200 px-3 py-2 text-left text-xs text-stone-600 transition-colors hover:border-orange-300 hover:bg-orange-50 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-orange-950/20"
+                    className="rounded-lg border border-stone-200 px-2.5 py-1.5 text-left text-xs text-stone-600 transition-colors hover:border-orange-300 hover:bg-orange-50 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-orange-950/20"
                   >
                     {q}
                   </button>

@@ -244,10 +244,10 @@ function BackendHealthPill() {
 
 export default function Header({ onHome, onOpenHistory }: Props) {
   return (
-    <header className="relative border-b border-stone-200 bg-[#F8F1E7] px-6 py-4 dark:border-stone-800 dark:bg-stone-900">
+    <header className="relative shrink-0 border-b border-stone-200 bg-[#F8F1E7] px-4 py-2.5 sm:px-6 sm:py-3 dark:border-stone-800 dark:bg-stone-900">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
         <button onClick={onHome} className="flex items-center gap-3" aria-label="Go to home">
-          <img src={potholeLogo} alt="Pothole Detection" className="h-9 w-auto sm:h-10" />
+          <img src={potholeLogo} alt="Pothole Detection" className="h-8 w-auto sm:h-9" />
           <span className="hidden border-l border-stone-300 pl-3 text-left text-xs italic leading-tight text-stone-500 sm:block dark:border-stone-700 dark:text-stone-400">
             Safer Roads
             <br />

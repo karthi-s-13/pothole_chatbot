@@ -42,9 +42,18 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Pothole Detection API", lifespan=lifespan)
 
+cors_origins = list(settings.cors_origins) if isinstance(settings.cors_origins, list) else [settings.cors_origins]
+for extra_origin in [
+    "https://pothole-chatbot.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+]:
+    if extra_origin not in cors_origins:
+        cors_origins.append(extra_origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_origin_regex=r"^https?://.*",
     allow_credentials=True,
     allow_methods=["*"],

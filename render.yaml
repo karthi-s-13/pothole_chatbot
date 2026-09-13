@@ -23,4 +23,4 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: CORS_ORIGINS
-        value: '["*"]'
+        value: '["https://pothole-chatbot.vercel.app","*"]'

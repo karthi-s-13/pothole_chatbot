@@ -30,7 +30,12 @@ class Settings(BaseSettings):
     max_upload_mb: int = 10
     confidence_threshold: float = 0.66
 
-    cors_origins: Union[list[str], str] = ["*"]
+    cors_origins: Union[list[str], str] = [
+        "https://pothole-chatbot.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "*",
+    ]
 
     @field_validator("cors_origins", mode="before")
     @classmethod

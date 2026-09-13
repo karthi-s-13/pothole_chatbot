@@ -50,7 +50,7 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
    MONGODB_DB_NAME=pothole_detection
    GROQ_API_KEY=gsk_...
    GROQ_MODEL=openai/gpt-oss-120b
-   CORS_ORIGINS=["https://your-frontend.vercel.app","http://localhost:5173"]
+   CORS_ORIGINS=["https://pothole-chatbot.vercel.app","http://localhost:5173"]
    ```
    *(Optional Cloudinary keys if using Cloudinary for images)*
    ```env
@@ -64,7 +64,7 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
    - Choose **Allow Access from Anywhere** (`0.0.0.0/0`).
    - If not set to `0.0.0.0/0`, MongoDB Atlas firewall will drop Render's dynamic IP addresses with `[SSL: TLSV1_ALERT_INTERNAL_ERROR]`.
 6. Click **Create Web Service**.
-6. Once deployed, copy your backend service URL (e.g. `https://pothole-detection-backend.onrender.com`).
+7. Once deployed, backend is accessible at `https://pothole-chatbot.onrender.com`.
 
 ---
 
@@ -77,10 +77,10 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
 5. Framework preset will automatically detect **Vite**.
 6. Under **Environment Variables**, add:
    - **Key**: `VITE_API_BASE_URL`
-   - **Value**: Your Render backend URL (e.g., `https://pothole-detection-backend.onrender.com`)
+   - **Value**: `https://pothole-chatbot.onrender.com`
 7. Click **Deploy**.
-8. Once finished, copy the production frontend URL (e.g., `https://pothole-detection.vercel.app`).
-9. Update `CORS_ORIGINS` in your backend environment variables on Render to include your Vercel URL!
+8. Live frontend application: `https://pothole-chatbot.vercel.app`.
+9. Verify `CORS_ORIGINS` in your backend environment on Render includes `https://pothole-chatbot.vercel.app`!
 
 ---
 

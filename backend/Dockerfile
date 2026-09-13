@@ -25,16 +25,16 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
 
-COPY model/ /app/model/
+COPY model/pothole_rtdetr_best.pt /app/model/pothole_rtdetr_best.pt
 COPY backend/ /app/backend/
 
-RUN mkdir -p /app/backend/static/uploads
+RUN mkdir -p /app/backend/static/uploads /tmp/Ultralytics
 
 WORKDIR /app/backend
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=25s --retries=3 \
   CMD curl -f http://localhost:${PORT:-8000}/api/health || exit 1
 
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

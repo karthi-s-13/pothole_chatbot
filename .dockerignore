@@ -9,6 +9,8 @@ model/pothole_dataset
 model/_flat_voc
 model/runs
 model/inference_results
+model/best.pt
+model/last.pt
 *.ipynb
 __pycache__
 *.pyc

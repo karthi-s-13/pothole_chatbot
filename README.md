@@ -1,44 +1,69 @@
-# Pothole Detection App
+# Pothole Detection & AI Assistant
 
-RT-DETR pothole detector behind a FastAPI backend, with a React chat UI where you upload a road
-image, see the detected potholes, and ask a chatbot questions about the result.
+An intelligent full-stack system featuring an RT-DETR pothole detector served via a FastAPI backend, paired with an interactive React chat UI where users can upload road imagery, inspect detected potholes with confidence scoring, and discuss road safety insights with a Groq-powered AI assistant.
+
+---
+
+## 🌐 Live Deployments
+
+- **Frontend (Vercel)**: [https://pothole-chatbot.vercel.app/](https://pothole-chatbot.vercel.app/)
+- **Backend (Render)**: [https://pothole-chatbot.onrender.com/](https://pothole-chatbot.onrender.com/)
+- **API Health Check**: [https://pothole-chatbot.onrender.com/api/health](https://pothole-chatbot.onrender.com/api/health)
+- **Interactive OpenAPI Documentation**: [https://pothole-chatbot.onrender.com/docs](https://pothole-chatbot.onrender.com/docs)
+
+---
+
+## 📁 Repository Structure
 
 ```
-model/      Kaggle-trained RT-DETR weights + training notebook
-backend/    FastAPI + SQLAlchemy + Postgres + Groq-powered chatbot
-frontend/   React + TypeScript + Tailwind (Vite)
+├── Dockerfile              # Root Dockerfile for Render / Cloud deployments (build context: .)
+├── docker-compose.yml      # Multi-container orchestration (MongoDB + Backend + Frontend)
+├── render.yaml             # Render Blueprint specification
+├── DEPLOYMENT.md           # Production deployment instructions
+├── model/                  # Kaggle-trained RT-DETR model weights (pothole_rtdetr_best.pt)
+├── backend/                # FastAPI + Ultralytics RT-DETR + MongoDB + Groq LLM
+│   ├── Dockerfile          # Backend Dockerfile
+│   ├── requirements.txt    # Python dependencies (CPU-optimized PyTorch)
+│   └── app/                # Application routes, models, and inference logic
+└── frontend/               # React 19 + TypeScript + Vite + Tailwind CSS
+    ├── Dockerfile          # Multi-stage Dockerfile (Node builder + Nginx production)
+    ├── .env                # Local development environment configuration
+    ├── .env.production     # Production environment configuration (Render URL)
+    └── src/                # UI components, state management, and API client
 ```
 
-## 1. Database (Postgres, already installed locally)
+---
 
-Create a dedicated app role + database (only needs the Postgres superuser password once):
+## 🚀 Running Locally with Docker
+
+You can launch the entire stack (MongoDB, FastAPI backend, and Nginx frontend) with Docker Compose:
 
 ```powershell
-$env:PG_SUPERUSER_PASSWORD = "<your postgres superuser password>"
-cd backend
-python scripts/init_db.py
+docker compose up --build
 ```
 
-This creates role `pothole_app` / database `pothole_db`. Copy the `DATABASE_URL` it prints into
-`backend/.env`.
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **Swagger Docs**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/api/health
 
-## 2. Backend
+---
+
+## 🛠️ Manual Local Development
+
+### 1. Backend
 
 ```powershell
 cd backend
-python -m venv .venv        # optional but recommended
+python -m venv .venv
 .venv\Scripts\activate
+pip install --upgrade pip
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
-copy .env.example .env      # then fill in DATABASE_URL and GROQ_API_KEY
 uvicorn app.main:app --reload --port 8000
 ```
 
-- Get a free `GROQ_API_KEY` at https://console.groq.com/keys.
-- The model weights path defaults to `../model/pothole_rtdetr_best.pt` (already in place).
-- Tables are created automatically on startup (`Base.metadata.create_all`) — no migration step needed for this local setup.
-- API docs: http://localhost:8000/docs
-
-## 3. Frontend
+### 2. Frontend
 
 ```powershell
 cd frontend
@@ -46,29 +71,4 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. `frontend/.env` already points at `http://localhost:8000`.
-
-## How it works
-
-1. **Upload** a road image → `POST /api/detect` runs RT-DETR, saves the original + annotated image
-   under `backend/static/uploads/`, stores the result in the `detections` table, and returns the
-   annotated image URL + list of detected boxes.
-2. **Chat** → `POST /api/chat` loads that detection's data plus prior chat history from Postgres,
-   sends it to Groq as a system prompt, and stores both the user message and the reply in
-   `chat_messages`. The system prompt instructs the model to reply with exactly
-   *"This is not relevant information."* for anything unrelated to the detection or road safety.
-
-## Error handling notes
-
-- Upload: rejects non-image files, empty files, and anything over 10MB (both client- and
-  server-side).
-- Inference: missing/corrupt model weights return `503`; unreadable images return `400`.
-- Chat: empty/over-length messages return `400`; missing `detection_id` returns `404`; Groq
-  failures (bad key, rate limit, timeout, network) return `502` with a readable message instead of
-  crashing.
-- Frontend surfaces every backend error message inline instead of failing silently.
-
-## Not done yet (by design, per your instructions)
-
-- No Docker — everything above runs directly with local Python/Node/Postgres.
-- No auth/multi-user support — this is a single-user local app for now.
+The frontend will run at `http://localhost:5173` and automatically proxy requests to the configured backend.

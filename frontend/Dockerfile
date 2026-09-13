@@ -10,8 +10,8 @@ RUN npm ci
 
 COPY . ./
 
-# Allow setting VITE_API_BASE_URL during build (e.g. your Render backend URL)
-ARG VITE_API_BASE_URL=""
+# Allow setting VITE_API_BASE_URL during build (defaults to live Render backend URL)
+ARG VITE_API_BASE_URL="https://pothole-chatbot.onrender.com"
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build

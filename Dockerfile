@@ -27,21 +27,21 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
 
-# Copy model weights
-COPY model/ /app/model/
+# Copy only the active RT-DETR model weights to keep image slim
+COPY model/pothole_rtdetr_best.pt /app/model/pothole_rtdetr_best.pt
 
 # Copy backend application source
 COPY backend/ /app/backend/
 
-# Ensure static upload directory exists
-RUN mkdir -p /app/backend/static/uploads
+# Ensure static upload directory and Ultralytics cache directory exist
+RUN mkdir -p /app/backend/static/uploads /tmp/Ultralytics
 
 WORKDIR /app/backend
 
 EXPOSE 8000
 
-# Healthcheck probe
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+# Healthcheck probe (start-period=25s allows model background warmup without failure)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=25s --retries=3 \
   CMD curl -f http://localhost:${PORT:-8000}/api/health || exit 1
 
 # Start FastAPI backend with dynamic port binding for Render/Cloud hosts

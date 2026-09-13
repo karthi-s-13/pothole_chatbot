@@ -3,7 +3,7 @@ from pathlib import Path
 
 import cv2
 
-from .config import settings
+from .config import BASE_DIR, settings
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +22,19 @@ def load_model():
 
     target_path = settings.weights_path
     if not target_path.exists():
-        fallback_best = settings.weights_path.parent / "best.pt"
-        if fallback_best.exists():
-            target_path = fallback_best
+        fallback_candidates = [
+            settings.weights_path.parent / "best.pt",
+            BASE_DIR / "model" / "pothole_rtdetr_best.pt",
+            BASE_DIR / "model" / "best.pt",
+            BASE_DIR.parent / "model" / "pothole_rtdetr_best.pt",
+            BASE_DIR.parent / "model" / "best.pt",
+            Path("/app/model/pothole_rtdetr_best.pt"),
+            Path("/app/model/best.pt"),
+        ]
+        for candidate in fallback_candidates:
+            if candidate.exists():
+                target_path = candidate
+                break
 
     if not target_path.exists():
         if settings.weights_url:

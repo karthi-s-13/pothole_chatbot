@@ -14,8 +14,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python requirements first for caching
+# Pre-install CPU-only PyTorch (drastically reduces image size from ~4GB to ~700MB)
 COPY backend/requirements.txt /app/backend/
 RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r /app/backend/requirements.txt
 
 # Copy backend application and model

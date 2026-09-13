@@ -60,7 +60,22 @@ app.include_router(history.router)
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    db_status = "connected"
+    try:
+        get_mongo_client().admin.command("ping")
+    except Exception:
+        db_status = "disconnected"
+
+    from .inference import _model
+    model_status = "ready" if _model is not None else "warming_up"
+
+    return {
+        "status": "ok",
+        "backend": "healthy",
+        "database": db_status,
+        "model": model_status,
+        "llm_model": settings.groq_model,
+    }
 
 
 # Serve built frontend SPA if available (for complete full-stack deployment)

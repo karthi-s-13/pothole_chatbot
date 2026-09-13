@@ -73,13 +73,32 @@ export function resolveImageUrl(path: string): string {
   return `${API_BASE_URL}${cleanPath}`;
 }
 
-export async function checkApiHealth(): Promise<boolean> {
+export interface BackendHealthInfo {
+  status: string;
+  backend?: string;
+  database?: string;
+  model?: string;
+  llm_model?: string;
+  latencyMs?: number;
+}
+
+export async function getBackendHealth(): Promise<{ ok: boolean; info?: BackendHealthInfo }> {
+  const start = performance.now();
   try {
-    const { status } = await client.get("/api/health", { timeout: 5_000 });
-    return status === 200;
+    const { status, data } = await client.get<BackendHealthInfo>("/api/health", { timeout: 8_000 });
+    const latencyMs = Math.round(performance.now() - start);
+    return {
+      ok: status === 200,
+      info: { ...data, latencyMs },
+    };
   } catch {
-    return false;
+    return { ok: false };
   }
+}
+
+export async function checkApiHealth(): Promise<boolean> {
+  const { ok } = await getBackendHealth();
+  return ok;
 }
 
 export { API_BASE_URL };

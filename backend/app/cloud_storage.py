@@ -18,7 +18,8 @@ _configured = False
 
 def is_enabled() -> bool:
     return bool(
-        settings.cloudinary_cloud_name and settings.cloudinary_api_key and settings.cloudinary_api_secret
+        settings.cloudinary_url
+        or (settings.cloudinary_cloud_name and settings.cloudinary_api_key and settings.cloudinary_api_secret)
     )
 
 
@@ -28,12 +29,15 @@ def _ensure_configured() -> None:
         return
     import cloudinary
 
-    cloudinary.config(
-        cloud_name=settings.cloudinary_cloud_name,
-        api_key=settings.cloudinary_api_key,
-        api_secret=settings.cloudinary_api_secret,
-        secure=True,
-    )
+    if settings.cloudinary_url:
+        cloudinary.config(cloudinary_url=settings.cloudinary_url)
+    else:
+        cloudinary.config(
+            cloud_name=settings.cloudinary_cloud_name,
+            api_key=settings.cloudinary_api_key,
+            api_secret=settings.cloudinary_api_secret,
+            secure=True,
+        )
     _configured = True
 
 

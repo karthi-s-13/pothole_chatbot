@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     cloudinary_cloud_name: str = ""
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""
+    cloudinary_url: str = ""
 
     groq_api_key: str = ""
     groq_model: str = "openai/gpt-oss-120b"

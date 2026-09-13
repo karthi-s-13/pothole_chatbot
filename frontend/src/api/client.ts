@@ -3,16 +3,22 @@ import type { ApiErrorPayload, ChatMessage, DetectionResult, HistoryItem } from 
 
 function resolveDefaultApiBase(): string {
   const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+
+  // If running in a browser on a live domain (e.g. Vercel), never call localhost
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
+    if (!isLocal && (!rawBaseUrl || rawBaseUrl.includes("localhost") || rawBaseUrl.includes("127.0.0.1"))) {
+      return "https://pothole-chatbot.onrender.com";
+    }
+  }
+
   if (rawBaseUrl) {
     return rawBaseUrl.replace(/\/+$/, "");
   }
 
-  // When deployed on Vercel or any non-localhost web domain, default to the live Render backend
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host && host !== "localhost" && host !== "127.0.0.1" && !host.endsWith(".local")) {
-      return "https://pothole-chatbot.onrender.com";
-    }
+  if (import.meta.env.PROD) {
+    return "https://pothole-chatbot.onrender.com";
   }
 
   return "http://localhost:8000";

@@ -42,6 +42,10 @@ def load_model():
                 "Ensure best.pt or pothole_rtdetr_best.pt exists or set WEIGHTS_PATH / WEIGHTS_URL in .env."
             )
 
+    import os
+    import tempfile
+
+    os.environ.setdefault("YOLO_CONFIG_DIR", os.path.join(tempfile.gettempdir(), "Ultralytics"))
     from ultralytics import RTDETR  # imported lazily: heavy import, and lets the API boot even if torch is broken
 
     logger.info("Loading RT-DETR weights from %s", target_path)

@@ -7,6 +7,7 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=8000 \
+    YOLO_CONFIG_DIR=/tmp/Ultralytics \
     GROQ_MODEL="openai/gpt-oss-120b" \
     MONGODB_DB_NAME="pothole_detection"
 

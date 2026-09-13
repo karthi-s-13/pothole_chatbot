@@ -28,6 +28,7 @@ services:
       - "8000:8000"
     environment:
       PORT: 8000
+      YOLO_CONFIG_DIR: /tmp/Ultralytics
       MONGODB_URI: mongodb://mongodb:27017
       MONGODB_DB_NAME: pothole_detection
       GROQ_API_KEY: ${GROQ_API_KEY:-}

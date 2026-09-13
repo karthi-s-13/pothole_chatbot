@@ -123,6 +123,7 @@ export default function ChatPanel({ initialSession = null }: Props) {
           ]);
         }
       } else if (currentDetection) {
+        if (!trimmed) return;
         setMessages((prev) => [
           ...prev,
           { role: "user", content: trimmed, created_at: new Date().toISOString() },

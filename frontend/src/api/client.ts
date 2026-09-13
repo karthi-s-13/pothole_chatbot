@@ -1,8 +1,24 @@
 import axios, { AxiosError } from "axios";
 import type { ApiErrorPayload, ChatMessage, DetectionResult, HistoryItem } from "../types";
 
-const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
-const API_BASE_URL = rawBaseUrl ? rawBaseUrl.replace(/\/+$/, "") : "http://localhost:8000";
+function resolveDefaultApiBase(): string {
+  const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim();
+  if (rawBaseUrl) {
+    return rawBaseUrl.replace(/\/+$/, "");
+  }
+
+  // When deployed on Vercel or any non-localhost web domain, default to the live Render backend
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host && host !== "localhost" && host !== "127.0.0.1" && !host.endsWith(".local")) {
+      return "https://pothole-chatbot.onrender.com";
+    }
+  }
+
+  return "http://localhost:8000";
+}
+
+const API_BASE_URL = resolveDefaultApiBase();
 
 const client = axios.create({
   baseURL: API_BASE_URL,

@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     max_upload_mb: int = 10
     confidence_threshold: float = 0.66
 
-    cors_origins: Union[list[str], str] = ["http://localhost:5173"]
+    cors_origins: Union[list[str], str] = ["*"]
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -46,7 +46,7 @@ class Settings(BaseSettings):
             return [item.strip() for item in v_trimmed.split(",") if item.strip()]
         if isinstance(v, list):
             return v
-        return ["http://localhost:5173"]
+        return ["*"]
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

@@ -8,9 +8,8 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
 
 - **Frontend**: Vite + React 19 + Tailwind CSS (Static SPA) → Recommended: **Vercel** or **Netlify**
 - **Backend**: FastAPI + PyTorch / Ultralytics RT-DETR model → Recommended: **Render** (via Docker) or **Railway**
-- **Databases**:
-  - **PostgreSQL**: Stores detection metadata and results (Render PostgreSQL, Neon, or Supabase)
-  - **MongoDB Atlas**: Stores chatbot conversation history
+- **Database**:
+  - **MongoDB** (e.g. MongoDB Atlas free tier): Stores both detection metadata and chat conversations
 - **Storage / Cloud (Optional)**:
   - **Cloudinary**: For cloud storage of uploaded and annotated images (falls back to local filesystem if unset)
   - **Groq**: LLM inference (Llama 3.3) for the interactive assistant

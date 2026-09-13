@@ -6,5 +6,7 @@ pydantic-settings
 ultralytics
 opencv-python-headless
 groq
-pymongo
+pymongo[srv]
+certifi
+dnspython
 cloudinary

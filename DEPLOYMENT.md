@@ -24,9 +24,7 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
 2. Log in to [Render Dashboard](https://dashboard.render.com/).
 3. Click **Blueprints** → **New Blueprint Instance**.
 4. Select your `pothole_chatbot` repository.
-5. Render will detect `render.yaml` and automatically configure:
-   - A managed **PostgreSQL Database** (`pothole-postgres`)
-   - A **Web Service** running the Docker container (`pothole-detection-backend`)
+5. Render will detect `render.yaml` and automatically configure the Web Service (`pothole-detection-backend`).
 6. Fill in the required environment variables:
    - `GROQ_API_KEY`: Your Groq API key
    - `MONGODB_URI`: Your MongoDB Atlas connection string
@@ -45,14 +43,13 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
    - **Language**: `Docker`
    - **Dockerfile Path**: `./Dockerfile`
    - **Docker Context**: `.`
-   - **Plan**: Standard or Free (Note: PyTorch RT-DETR requires at least 512MB–1GB RAM during model loading)
+   - **Plan**: Standard or Starter (PyTorch RT-DETR model requires ~512MB–1GB RAM during inference)
 4. Under **Environment Variables**, add:
    ```env
-   DATABASE_URL=postgresql+psycopg://<user>:<password>@<host>:<port>/<db>
-   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?appName=app
+   MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/?appName=Cluster0
    MONGODB_DB_NAME=pothole_detection
    GROQ_API_KEY=gsk_...
-   GROQ_MODEL=llama-3.3-70b-versatile
+   GROQ_MODEL=openai/gpt-oss-120b
    CORS_ORIGINS=["https://your-frontend.vercel.app","http://localhost:5173"]
    ```
    *(Optional Cloudinary keys if using Cloudinary for images)*
@@ -61,7 +58,12 @@ This guide walks you through deploying the **Pothole Detection & Chatbot** appli
    CLOUDINARY_API_KEY=...
    CLOUDINARY_API_SECRET=...
    ```
-5. Click **Create Web Service**.
+5. **CRITICAL MongoDB Atlas Configuration**:
+   In **MongoDB Atlas** → **Security** → **Network Access** → **IP Access List**:
+   - Click **Add IP Address**.
+   - Choose **Allow Access from Anywhere** (`0.0.0.0/0`).
+   - If not set to `0.0.0.0/0`, MongoDB Atlas firewall will drop Render's dynamic IP addresses with `[SSL: TLSV1_ALERT_INTERNAL_ERROR]`.
+6. Click **Create Web Service**.
 6. Once deployed, copy your backend service URL (e.g. `https://pothole-detection-backend.onrender.com`).
 
 ---

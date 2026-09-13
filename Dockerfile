@@ -28,11 +28,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install system dependencies required by OpenCV and curl for healthchecks
+# Install system dependencies required by OpenCV, SSL CA certificates, and curl for healthchecks
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Pre-install CPU-optimized PyTorch (drastically reduces image size from ~4GB to ~750MB)

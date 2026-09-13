@@ -3,6 +3,7 @@ import type { DragEvent } from "react";
 import { ImageUp, UploadCloud } from "lucide-react";
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 const MAX_SIZE_MB = 10;
 
 interface Props {
@@ -16,7 +17,9 @@ export default function ImageUploader({ onAttach, disabled }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   function validate(file: File): string | null {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
+    const ext = "." + (file.name.split(".").pop()?.toLowerCase() ?? "");
+    const isValidType = ACCEPTED_TYPES.includes(file.type) || ACCEPTED_EXTENSIONS.includes(ext);
+    if (!isValidType) {
       return "Unsupported file type. Please upload a JPEG, PNG, or WEBP image.";
     }
     if (file.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -32,7 +35,13 @@ export default function ImageUploader({ onAttach, disabled }: Props) {
       return;
     }
     setError(null);
-    onAttach(file);
+    let normalized = file;
+    if (!file.type || file.type === "application/octet-stream") {
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+      normalized = new File([file], file.name, { type: mime });
+    }
+    onAttach(normalized);
   }
 
   function handleDrop(e: DragEvent<HTMLDivElement>) {

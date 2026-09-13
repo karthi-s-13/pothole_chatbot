@@ -16,19 +16,39 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["detection"])
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/jpg", "image/webp"}
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+
+def is_valid_image(content_type: str | None, filename: str | None, contents: bytes) -> bool:
+    if content_type in ALLOWED_CONTENT_TYPES:
+        return True
+
+    ext = Path(filename or "").suffix.lower()
+    if ext in ALLOWED_EXTENSIONS:
+        return True
+
+    # Check magic numbers
+    if contents.startswith(b"\xff\xd8\xff"):  # JPEG
+        return True
+    if contents.startswith(b"\x89PNG\r\n\x1a\n"):  # PNG
+        return True
+    if contents.startswith(b"RIFF") and len(contents) > 12 and contents[8:12] == b"WEBP":  # WEBP
+        return True
+
+    return False
 
 
 @router.post("/detect", response_model=schemas.DetectionOut)
 async def detect_pothole(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    if file.content_type not in ALLOWED_CONTENT_TYPES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file type: {file.content_type}. Upload a JPEG, PNG, or WEBP image.",
-        )
-
     contents = await file.read()
     if len(contents) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+    if not is_valid_image(file.content_type, file.filename, contents):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type: {file.content_type or 'unknown'}. Upload a JPEG, PNG, or WEBP image.",
+        )
 
     max_bytes = settings.max_upload_mb * 1024 * 1024
     if len(contents) > max_bytes:

@@ -42,6 +42,7 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 
 interface Props {
   initialSession?: ChatSession | null;
@@ -141,12 +142,19 @@ export default function ChatPanel({ initialSession = null }: Props) {
   }
 
   function handleFilePicked(file: File) {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
+    const ext = "." + (file.name.split(".").pop()?.toLowerCase() ?? "");
+    const isValidType = ACCEPTED_TYPES.includes(file.type) || ACCEPTED_EXTENSIONS.includes(ext);
+    if (!isValidType) {
       setError("Unsupported file type. Please upload a JPEG, PNG, or WEBP image.");
       return;
     }
     setError(null);
-    setPendingAttachment(file);
+    let normalized = file;
+    if (!file.type || file.type === "application/octet-stream") {
+      const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+      normalized = new File([file], file.name, { type: mime });
+    }
+    setPendingAttachment(normalized);
   }
 
   async function handleSamplePick(url: string, filename: string) {

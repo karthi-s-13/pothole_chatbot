@@ -18,7 +18,14 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("PostgreSQL database tables verified/created successfully.")
+    except Exception as e:
+        logger.error("Could not connect to PostgreSQL at startup: %s", e)
+        logger.warning(
+            "Check that DATABASE_URL is set in your environment variables and the database is accessible."
+        )
     try:
         load_model()
         logger.info("RT-DETR model loaded successfully.")

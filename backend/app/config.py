@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     cloudinary_api_secret: str = ""
 
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"
     # Small/fast model for query classification; falls back to groq_model when unset.
     groq_classifier_model: str = ""
 

@@ -1,4 +1,5 @@
 services:
+  # 1. PostgreSQL - Stores detections and damage metadata
   postgres:
     image: postgres:16-alpine
     container_name: pothole_postgres
@@ -11,29 +12,64 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pothole_app -d pothole_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  backend:
+  # 2. MongoDB - Stores chat conversations and history
+  mongodb:
+    image: mongo:7-jammy
+    container_name: pothole_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. Full-Stack App - Unified React Frontend + FastAPI Backend + RT-DETR Model
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: pothole_backend
+    container_name: pothole_app
     restart: unless-stopped
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     ports:
       - "8000:8000"
     environment:
+      # Database
       DATABASE_URL: postgresql+psycopg://pothole_app:pothole_password@postgres:5432/pothole_db
-      MONGODB_URI: ${MONGODB_URI:-}
-      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-pothole_detection}
+      
+      # MongoDB
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DB_NAME: pothole_detection
+
+      # Groq LLM (Set to openai/gpt-oss-120b)
       GROQ_API_KEY: ${GROQ_API_KEY:-}
-      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
+      GROQ_MODEL: openai/gpt-oss-120b
+
+      # Cloudinary (Optional - for cloud image storage)
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+
+      # CORS
       CORS_ORIGINS: '["*"]'
     volumes:
-      - ./backend/static:/app/backend/static
+      - app_uploads:/app/backend/static/uploads
 
 volumes:
   postgres_data:
+  mongodb_data:
+  app_uploads:

@@ -77,6 +77,15 @@ if frontend_dist.exists() and (frontend_dist / "index.html").exists():
         if file_path.is_file():
             return FileResponse(file_path)
         return FileResponse(frontend_dist / "index.html")
+else:
+    @app.get("/")
+    def root():
+        return {
+            "status": "online",
+            "message": "Pothole Detection & Chatbot API is running.",
+            "docs": "/docs",
+            "health": "/api/health",
+        }
 
 
 @app.exception_handler(Exception)

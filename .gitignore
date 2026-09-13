@@ -62,3 +62,5 @@ model/runs/
 backend/runs/
 runs/
 model/pothole_dataset/
+**/Ultralytics/
+Ultralytics/

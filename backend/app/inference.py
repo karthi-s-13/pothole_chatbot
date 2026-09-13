@@ -131,10 +131,22 @@ def run_inference(image_path: Path, annotated_out_path: Path) -> list[dict]:
 
     img_h, img_w = image.shape[:2]
 
+    # Pre-scale oversized images to prevent container OOM spikes
+    max_dim = max(img_h, img_w)
+    if max_dim > 1280:
+        scale = 1280 / max_dim
+        image = cv2.resize(image, (int(img_w * scale), int(img_h * scale)), interpolation=cv2.INTER_AREA)
+        img_h, img_w = image.shape[:2]
+
     import gc
     import torch
 
-    with torch.no_grad():
+    try:
+        torch.set_num_threads(1)
+    except Exception:
+        pass
+
+    with torch.inference_mode():
         results = model.predict(
             source=image,
             conf=settings.confidence_threshold,

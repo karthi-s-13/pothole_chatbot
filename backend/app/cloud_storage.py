@@ -27,17 +27,20 @@ def _ensure_configured() -> None:
     global _configured
     if _configured:
         return
+    import os
     import cloudinary
 
-    if settings.cloudinary_url:
-        cloudinary.config(cloudinary_url=settings.cloudinary_url)
-    else:
+    if settings.cloudinary_cloud_name and settings.cloudinary_api_key and settings.cloudinary_api_secret:
         cloudinary.config(
             cloud_name=settings.cloudinary_cloud_name,
             api_key=settings.cloudinary_api_key,
             api_secret=settings.cloudinary_api_secret,
             secure=True,
         )
+    elif settings.cloudinary_url:
+        os.environ["CLOUDINARY_URL"] = settings.cloudinary_url
+        cloudinary.reset_config()
+
     _configured = True
 
 
@@ -57,7 +60,7 @@ def upload_annotated_image(local_path: Path, public_id: str) -> str | None:
             public_id=public_id,
             folder="pothole-detection",
             overwrite=True,
-            timeout=4,
+            timeout=15,
         )
         return result["secure_url"]
     except Exception as e:

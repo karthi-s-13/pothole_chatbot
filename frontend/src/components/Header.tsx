@@ -3,7 +3,6 @@ import {
   Activity,
   CheckCircle2,
   ChevronDown,
-  Clock,
   Cpu,
   Database,
   ExternalLink,
@@ -19,7 +18,8 @@ import rapLogo from "../assets/rap_logo.webp";
 
 interface Props {
   onHome: () => void;
-  onOpenHistory: () => void;
+  onOpenDocs: () => void;
+  activeRoute?: "home" | "docs";
 }
 
 type HealthState = "checking" | "online" | "offline";
@@ -242,7 +242,11 @@ function BackendHealthPill() {
   );
 }
 
-export default function Header({ onHome, onOpenHistory }: Props) {
+export default function Header({ onHome, onOpenDocs, activeRoute = "home" }: Props) {
+  const activeClasses = "font-semibold text-orange-600 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/30";
+  const inactiveClasses =
+    "font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white";
+
   return (
     <header className="relative shrink-0 border-b border-stone-200 bg-[#F8F1E7] px-4 py-2.5 sm:px-6 sm:py-3 dark:border-stone-800 dark:bg-stone-900">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
@@ -258,27 +262,22 @@ export default function Header({ onHome, onOpenHistory }: Props) {
         <nav className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={onHome}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-orange-600 transition-colors hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/30"
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+              activeRoute === "home" ? activeClasses : inactiveClasses
+            }`}
           >
             <Home className="h-4 w-4" />
             <span className="hidden sm:inline">Home</span>
           </button>
           <button
-            onClick={onOpenHistory}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
-          >
-            <Clock className="h-4 w-4" />
-            <span className="hidden sm:inline">History</span>
-          </button>
-          <a
-            href={`${API_BASE_URL}/docs`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
+            onClick={onOpenDocs}
+            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+              activeRoute === "docs" ? activeClasses : inactiveClasses
+            }`}
           >
             <FileText className="h-4 w-4" />
             <span className="hidden sm:inline">Docs</span>
-          </a>
+          </button>
 
           {/* Enhanced Backend Health Section */}
           <BackendHealthPill />

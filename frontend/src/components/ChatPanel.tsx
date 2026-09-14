@@ -44,9 +44,10 @@ const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
 
 interface Props {
   initialSession?: ChatSession | null;
+  onDetectionComplete?: () => void;
 }
 
-export default function ChatPanel({ initialSession = null }: Props) {
+export default function ChatPanel({ initialSession = null, onDetectionComplete }: Props) {
   const [messages, setMessages] = useState<LocalMessage[]>(() => seedFromSession(initialSession));
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -112,6 +113,7 @@ export default function ChatPanel({ initialSession = null }: Props) {
           ...prev,
           { role: "assistant", content: summary, created_at: new Date().toISOString(), detectionResult: result },
         ]);
+        onDetectionComplete?.();
 
         if (trimmed) {
           const { reply } = await sendChatMessage(result.id, trimmed);

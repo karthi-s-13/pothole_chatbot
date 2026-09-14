@@ -14,7 +14,7 @@ export default function DetectionPanel({ result }: Props) {
       <img
         src={resolveImageUrl(result.annotated_image_url)}
         alt={`Detection result for ${result.original_filename}`}
-        className="w-full rounded-lg border border-stone-200 object-contain dark:border-stone-800"
+        className="h-48 w-full rounded-lg border border-stone-200 object-contain bg-stone-50 dark:border-stone-800 dark:bg-stone-800/60"
       />
 
       <div

@@ -372,7 +372,6 @@ export default function DocsPage({ onBack }: Props) {
               reference implementation — real-time inference, persistent history, an honest accounting of failure modes
               — not a notebook demo.
             </p>
-            <p className="mt-3 text-[11px] text-zinc-400">Built by Rapid Acceleration Partners.</p>
           </section>
 
           <Divider />

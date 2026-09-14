@@ -47,7 +47,7 @@
 
 ## 🌟 Executive Summary
 
-**RAP RoadWatch** is an enterprise-grade road surface intelligence and damage inspection platform developed by **Rapid Acceleration Partners**. It bridges state-of-the-art computer vision with grounded, guardrailed Large Language Model (LLM) reasoning.
+**RAP RoadWatch** is an enterprise-grade road surface intelligence and damage inspection platform. It bridges state-of-the-art computer vision with grounded, guardrailed Large Language Model (LLM) reasoning.
 
 While computer vision models can pinpoint road damage, civil engineers and municipal operators need more than raw bounding box coordinates. Conversely, naive multimodal LLMs frequently hallucinate metrics they cannot verify — inventing pothole depths, volumetric measurements, structural failure timelines, and repair estimates from standard 2D photos.
 
@@ -701,23 +701,6 @@ Detailed deployment procedures and step-by-step instructions are documented in [
 - [ ] **Phase 4**: Hard-negative mining for parked vehicle wheels and high-contrast shadows.
 - [ ] **Phase 5**: Video stream ingestion (RTSP) for real-time municipal patrol vehicle mounts.
 - [ ] **Phase 6**: Multimodal VLM integration for automated asphalt crack classification (Alligator, Longitudinal, Transverse).
-
----
-
-## 👥 Corporate Engineering & Acknowledgments
-
-<div align="center">
-  <img src="./assets/rap_logo.webp" alt="Rapid Acceleration Partners" width="220" style="margin-bottom: 12px;" />
-  <p><b>Developed by Rapid Acceleration Partners</b></p>
-  <p>Engineering autonomous AI infrastructure, computer vision systems, and multimodal enterprise platforms.</p>
-</div>
-
-### Citations & Research Foundations
-
-- **Dataset**: Kaggle `andrewmvd/pothole-detection` ([Kaggle Dataset](https://www.kaggle.com/datasets/andrewmvd/pothole-detection))
-- **Vision Architecture**: Zhao et al., *"DETRs Beat YOLOs on Real-time Object Detection"* ([arXiv:2304.08069](https://arxiv.org/abs/2304.08069))
-- **Framework**: Ultralytics Real-Time Object Detection Framework ([Ultralytics Docs](https://docs.ultralytics.com/models/rtdetr/))
-- **High-Speed Inference**: Groq LPU™ Inference Engine ([Groq Cloud](https://groq.com/))
 
 ---
 
